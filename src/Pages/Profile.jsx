@@ -4,8 +4,8 @@ import toast from "react-hot-toast";
 
 const Profile = () => {
     const { user, updateUserProfile, update, setUpdate } = useAuth()
-    // const navigate = useNavigate()
-    // const from = '/profile'
+    const navigate = useNavigate()
+    const from = '/profile'
     const handleUpdate = async e => {
         e.preventDefault()
         const form = e.target;
