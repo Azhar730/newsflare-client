@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom"
 import useAuth from "../Hooks/useAuth";
+import toast from "react-hot-toast";
 
 const Profile = () => {
-    const { user, updateUserProfile, update, setUpdate } = useAuth()
-    const navigate = useNavigate()
-    const from = '/profile'
+    // const { user, updateUserProfile, update, setUpdate } = useAuth()
+    // const navigate = useNavigate()
+    // const from = '/profile'
     const handleUpdate = async e => {
         e.preventDefault()
         const form = e.target;
@@ -12,6 +13,7 @@ const Profile = () => {
         const photo = form.photo.value
         await updateUserProfile(fullName, photo)
             .then(() => {
+                toast.success(`${user?.displayName}'s Profile Updated`)
                 setUpdate(!update)
                 navigate(from)
             })
