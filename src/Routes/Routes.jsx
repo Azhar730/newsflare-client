@@ -19,6 +19,7 @@ import Payment from "../Pages/Payment";
 import PremiumArticles from "../Pages/PremiumArticles";
 import UpdateArticle from "../Pages/Dashboard/UpdateArticle";
 import Statistics from "../Pages/Dashboard/Statistics";
+import Profile from "../Pages/Profile";
 
 export const router = createBrowserRouter([
   {
@@ -62,6 +63,10 @@ export const router = createBrowserRouter([
       {
         path: '/payment',
         element: <Payment />
+      },
+      {
+        path: '/profile',
+        element: <Profile />
       },
     ]
   },

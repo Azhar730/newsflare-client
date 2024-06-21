@@ -11,6 +11,7 @@ const AuthProvider = ({ children }) => {
     const axiosPublic = useAxiosCommon()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [update,setUpdate] = useState(false)
     const googleSignIn = () => {
         setLoading(true)
         return signInWithPopup(auth, googleProvider)
@@ -50,11 +51,10 @@ const AuthProvider = ({ children }) => {
             } else {
                 localStorage.removeItem('access-token')
             }
-            // setLoading(false)
         })
         return () => unsubscribe()
     }, [])
-    const authInfo = { googleSignIn, user, loading, createUser, signInUser, logOut, updateUserProfile }
+    const authInfo = { googleSignIn, user, loading, createUser, signInUser, logOut, updateUserProfile,update,setUpdate }
     return (
         <AuthContext.Provider value={authInfo}>
             {children}

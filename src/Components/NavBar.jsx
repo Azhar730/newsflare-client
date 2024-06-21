@@ -13,7 +13,7 @@ const NavBar = () => {
         <li><NavLink to={'/my-articles'}>My Articles</NavLink></li>
         <li><NavLink to={'/premium-articles'}>Premium Articles</NavLink></li>
     </>
-    
+
     return (
         <div className="navbar bg-base-100">
             <div className="navbar-start">
@@ -26,11 +26,11 @@ const NavBar = () => {
                     </ul>
                 </div>
                 <div className='w-full hidden md:flex px-4 py-2 rounded-lg justify-center items-center bg-[#f1f2f5] mx-auto'>
-                            <Link className='flex items-center text-gray-700 gap-x-1' to='/'>
-                                <FaRegNewspaper className='text-3xl' />
-                                <h1 className="text-3xl font-bold">NewsFlare</h1>
-                            </Link>
-                        </div>
+                    <Link className='flex items-center text-gray-700 gap-x-1' to='/'>
+                        <FaRegNewspaper className='text-3xl' />
+                        <h1 className="text-3xl font-bold">NewsFlare</h1>
+                    </Link>
+                </div>
             </div>
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
@@ -41,8 +41,8 @@ const NavBar = () => {
                 {
                     user ?
                         <div className="flex items-center">
-                            <img title={user?.displayName} className="h-12 w-12 rounded-full" src={user?.photoURL} />
-                            <button onClick={()=>logOut()} className="btn bg-[#B2C3F9]">Logout</button>
+                            <Link to={'/profile'}><img title={user?.displayName} className="h-12 w-12 rounded-full" src={user?.photoURL} /></Link>
+                            <button onClick={() => logOut()} className="btn bg-[#B2C3F9]">Logout</button>
                         </div>
                         : <Link to={'/login'} className="btn bg-[#B2C3F9]">Login</Link>
                 }
