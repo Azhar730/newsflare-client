@@ -1,15 +1,17 @@
 import { Link, NavLink } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
 import { FaRegNewspaper } from "react-icons/fa6";
+import useAdmin from "../Hooks/useAdmin";
 
 const NavBar = () => {
+    const [isAdmin] = useAdmin()
     const { user, logOut } = useAuth()
     const links = <>
         <li><NavLink to={'/'}>Home</NavLink></li>
         <li><NavLink to={'/add-articles'}>Add Articles</NavLink></li>
         <li><NavLink to={'/all-article'}>All Articles</NavLink></li>
         <li><NavLink to={'/subscription/price'}>Subscription</NavLink></li>
-        <li><NavLink to={'/dashboard'}>Dashboard</NavLink></li>
+        {user && isAdmin && <li><NavLink to={'/dashboard'}>Dashboard</NavLink></li>}
         <li><NavLink to={'/my-articles'}>My Articles</NavLink></li>
         <li><NavLink to={'/premium-articles'}>Premium Articles</NavLink></li>
     </>
@@ -44,7 +46,10 @@ const NavBar = () => {
                             <Link to={'/profile'}><img title={user?.displayName} className="h-12 w-12 rounded-full" src={user?.photoURL} /></Link>
                             <button onClick={() => logOut()} className="btn bg-[#B2C3F9]">Logout</button>
                         </div>
-                        : <Link to={'/login'} className="btn bg-[#B2C3F9]">Login</Link>
+                        : <div>
+                            <Link to={'/signup'} className="btn btn-sm bg-[#B2C3F9]">Register</Link>
+                            <Link to={'/login'} className="btn btn-sm bg-[#B2C3F9]">Login</Link>
+                        </div>
                 }
             </div>
         </div>

@@ -4,6 +4,7 @@ import Swal from 'sweetalert2'
 import useAuth from "../Hooks/useAuth";
 import useAxiosCommon from "../Hooks/useAxiosCommon";
 import SocialLogin from "../Components/SocialLogin";
+import toast from "react-hot-toast";
 
 const SignUp = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
@@ -15,7 +16,6 @@ const SignUp = () => {
 
 
     const onSubmit = data => {
-        console.log(data);
         createUser(data.email, data.password)
             .then(result => {
                 const loggedUser = result.user;
@@ -46,7 +46,11 @@ const SignUp = () => {
                                 }
                             })
                     })
-                    .catch(error => console.log(error))
+                    .catch(error => {
+                        if(error.message){
+                            toast.error('Already Registered',error)
+                        }
+                    })
             })
     };
 
