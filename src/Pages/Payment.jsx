@@ -4,13 +4,13 @@ import CheckoutForm from '../Components/CheckoutForm';
 
 
 const stripePromise = loadStripe(import.meta.env.VITE_PAYMENT_GATEWAY);
-const Payment = ({price}) => {
+const Payment = ({price,period}) => {
     console.log(price);
     return (
         <div>
             <h1>Subscription {price}</h1>
             <Elements stripe={stripePromise}>
-                <CheckoutForm price={price} />
+                <CheckoutForm price={price} period={period}/>
             </Elements>
         </div>
     );

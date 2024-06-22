@@ -8,7 +8,7 @@ const AllArticle = () => {
     const [search, setSearch] = useState('')
     const [searchText, setSearchText] = useState('')
 
-    const { data: articles = [], refetch } = useQuery({
+    const { data: articles = [] } = useQuery({
         queryKey: ['article',search],
         queryFn: async () => {
             const res = await axiosSecure.get(`/allArticle?search=${search}`);

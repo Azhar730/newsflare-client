@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import useAxiosSecure from '../Hooks/useAxiosSecure';
 import useAuth from '../Hooks/useAuth';
 
-const CheckoutForm = ({price}) => {
+const CheckoutForm = ({price,period}) => {
     const stripe = useStripe();
     const elements = useElements();
     const [error, setError] = useState('')
@@ -14,7 +14,7 @@ const CheckoutForm = ({price}) => {
     const axiosSecure = useAxiosSecure()
     const { user } = useAuth()
     const totalPrice = price
-
+    console.log(period);
     useEffect(() => {
         if(totalPrice>0){
             axiosSecure.post('/create-payment-intent', { price: totalPrice })
@@ -72,12 +72,12 @@ const CheckoutForm = ({price}) => {
                     price: totalPrice,
                     transactionId: paymentIntent.id,
                     date: new Date(),
-                    status: 'pending'
+                    period
                 }
                 const res = await axiosSecure.post('/payments',payment)
                 console.log(res.data);
                 if(res.data?.paymentResult?.insertedId){
-                    toast.success('Payment Successful & Clear Cart')
+                    toast.success('Payment Successful')
                 }
                 else{
                     toast.error('Not Successful')

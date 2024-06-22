@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 const ArticleCard = ({ article }) => {
-    const { _id,title, image_url, publisher, description,isPremium, tags, author, postedDate, status } = article
+    const { _id,title, image_url, publisher, description,isPremium } = article
     return (
         <div className={isPremium? "border hover:border-blue-500 card card-compact w-96 bg-blue-100 shadow-xl p-5": "border hover:border-blue-500 card card-compact w-96 bg-base-100 shadow-xl p-5"}>
             <h1 className="my-2 text-lg font-semibold text-gray-700">{title}</h1>
