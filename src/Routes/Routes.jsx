@@ -58,15 +58,15 @@ export const router = createBrowserRouter([
       },
       {
         path: '/subscription/:price',
-        element: <Subscription />
+        element: <PrivateRoute><Subscription /></PrivateRoute>
       },
       {
         path: '/payment/:price',
-        element: <Payment />
+        element: <PrivateRoute><Payment /></PrivateRoute>
       },
       {
         path: '/profile',
-        element: <Profile />
+        element: <PrivateRoute><Profile /></PrivateRoute>
       },
     ]
   },
