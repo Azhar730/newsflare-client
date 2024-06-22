@@ -4,8 +4,17 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import Slide from './Slide';
+import { axiosSecure } from '../Hooks/useAxiosSecure';
+import { useQuery } from '@tanstack/react-query';
 
 const Banner = () => {
+  const { data: articles = [] } = useQuery({
+    queryKey: ['article'],
+    queryFn: async () => {
+        const res = await axiosSecure.get('/article');
+        return res.data
+    }
+})
   return (
     <div className='my-12'>
       <Swiper
@@ -23,15 +32,11 @@ const Banner = () => {
         modules={[Autoplay, Pagination, Navigation]}
         className="mySwiper"
       >
-        <SwiperSlide>
-          <Slide img={'https://i.postimg.cc/15M5GhGH/carousel1.jpg'} text={'Get Your Web Development Project Done in Minutes'}></Slide>
-        </SwiperSlide>
-        <SwiperSlide>
-          <Slide img={'https://i.postimg.cc/fRLW525h/carousel2.jpg'} text={'Get Your Graphic Design Project Done in Minutes'}></Slide>
-        </SwiperSlide>
-        <SwiperSlide>
-          <Slide img={'https://i.postimg.cc/B6WqSq3q/carousel3.jpg'} text={'Get Your Digital Marketing Project Done in Minutes'}></Slide>
-        </SwiperSlide>
+        {
+          articles.slice(0,6).map(article=><SwiperSlide key={article._id}>
+            <Slide img={article.image_url} text={article.title}></Slide>
+          </SwiperSlide>)
+        }
       </Swiper>
     </div>
   );

@@ -1,3 +1,4 @@
+import AllUser from "../Components/AllUser";
 import Banner from "../Components/Banner";
 import Faq from "../Components/Faq";
 import Newsletter from "../Components/Newsletter";
@@ -9,6 +10,7 @@ const Home = () => {
         <div>
             <Banner/>
             <Publishers/>
+            <AllUser/>
             <Plans/>
             <Newsletter/>
             <Faq/>

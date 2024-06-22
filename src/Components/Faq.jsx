@@ -1,6 +1,7 @@
 const Faq = () => {
     return (
         <div>
+            <h1 className="text-4xl text-center font-bold text-blue-600 my-6">Answer of Your Question</h1>
             <div className="collapse collapse-arrow bg-base-200">
                 <input type="radio" name="my-accordion-2" defaultChecked />
                 <div className="collapse-title text-xl font-medium">

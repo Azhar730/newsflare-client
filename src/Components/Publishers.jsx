@@ -17,6 +17,7 @@ const Publishers = () => {
     })
     return (
         <div className='my-10'>
+            <h1 className="text-4xl text-center my-6 font-bold text-blue-600">All Publisher</h1>
             <section>
                 <Swiper
                     slidesPerView={4}

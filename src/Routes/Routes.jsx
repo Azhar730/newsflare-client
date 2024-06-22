@@ -57,11 +57,11 @@ export const router = createBrowserRouter([
         loader: ({params})=>fetch(`${import.meta.env.VITE_API_URL}/article/${params.id}`)
       },
       {
-        path: '/subscription',
+        path: '/subscription/:price',
         element: <Subscription />
       },
       {
-        path: '/payment',
+        path: '/payment/:price',
         element: <Payment />
       },
       {

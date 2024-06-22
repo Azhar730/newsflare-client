@@ -1,59 +1,177 @@
+import { useNavigate } from "react-router-dom";
+
 const Plans = () => {
+    const navigate = useNavigate();
+
+    const cardData = {
+        title: "Premium Plan",
+        description: "Get the most out of our service with the premium plan.",
+        price: 0,
+        features: [
+            "Feature 1: Unlimited access",
+            "Feature 2: Priority support",
+            "Feature 3: Free updates",
+        ],
+    };
+
+    const cardDataDuo = {
+        title: "Premium Plan",
+        description: "Get the most out of our service with the premium plan.",
+        price: 29.99,
+        features: [
+            "Feature 1: Unlimited access",
+            "Feature 2: Priority support",
+            "Feature 3: Free updates",
+        ],
+    };
+
+    const cardDataFamily = {
+        title: "Premium Plan",
+        description: "Get the most out of our service with the premium plan.",
+        price: 40.99,
+        features: [
+            "Feature 1: Unlimited access",
+            "Feature 2: Priority support",
+            "Feature 3: Free updates",
+        ],
+    };
+
+    const hanldePrice = () => {
+        const price = cardData.price;
+        navigate(`/subscription/${price}`);
+    };
+    const hanldePrice2 = () => {
+        const price = cardDataDuo.price;
+        navigate(`/subscription/${price}`);
+    };
+    const hanldePrice3 = () => {
+        const price = cardDataFamily.price;
+        navigate(`/subscription/${price}`);
+    };
+
     return (
-        <div className="grid gap-5 w-full mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            <div className="card w-96 bg-gray-200 text-gray-800">
-                <div className="card-body">
-                    <div className="border-2 border-blue-500 rounded-xl p-5">
-                        <p className="bg-blue-300 px-2 rounded-lg w-fit font-medium">Free For 1 Month</p>
-                        <div className="card-title flex justify-between my-3 mt-5">
-                            <h2>Premium<br />Individual</h2>
-                            <h2>Free<br /><span className="text-sm">FOR 1 MONTH</span></h2>
-                        </div>
-                        <ul className="list-disc ml-4 text-gray-700 text-lg font-medium">
-                            <li>1 Premium Account</li>
-                            <li>Cancel Anytime</li>
-                            <li>15 hours/month of listening time from our audiobooks subscriber catalog</li>
+        <div>
+            <h1 className="text-4xl text-center my-6 font-bold text-blue-600">Choose Your Plan</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
+                <div className="max-w-full rounded overflow-hidden shadow-lg m-4 border-blue-500 border">
+                    <div className="bg-gray-200 p-4 flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-800">{cardData.title}</h2>
+                        <p className="text-xl font-bold text-gray-800">${cardData.price}</p>
+                    </div>
+                    <div className="p-6">
+                        <p className="text-gray-600 mb-4">{cardData.description}</p>
+                        <ul className="mb-4">
+                            {cardData.features.map((feature, index) => (
+                                <li key={index.id} className="flex items-center mb-2">
+                                    <svg
+                                        className="w-6 h-6 text-gray-600 mr-2"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M5 13l4 4L19 7"
+                                        ></path>
+                                    </svg>
+                                    <span className="text-gray-700">{feature}</span>
+                                </li>
+                            ))}
                         </ul>
-                        <div className="card-actions mt-4">
-                            <button className="btn w-full text-lg text-[#FFF] bg-blue-500 hover:bg-blue-700 border-none btn-sm">Subscribe Now</button>
+                        <div className="text-center">
+                            <button
+                                onClick={hanldePrice}
+                                className="text-xl font-bold btn bg-white rounded-lg text-blue-600"
+                            >
+                                free now 1 month
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="card w-96 bg-gray-200 text-gray-800">
-                <div className="card-body">
-                    <div className="border-2 border-blue-500 rounded-xl p-5">
-                        <p className="bg-blue-300 px-2 rounded-lg w-fit font-medium">Free For 1 Month</p>
-                        <div className="card-title flex justify-between my-3 mt-5">
-                            <h2>Premium<br />Individual</h2>
-                            <h2>Free<br /><span className="text-sm">FOR 1 MONTH</span></h2>
-                        </div>
-                        <ul className="list-disc ml-4 text-gray-700 text-lg font-medium">
-                            <li>1 Premium Account</li>
-                            <li>Cancel Anytime</li>
-                            <li>15 hours/month of listening time from our audiobooks subscriber catalog</li>
+                <div className="max-w-full rounded overflow-hidden shadow-lg m-4 border-blue-500 border">
+                    <div className="bg-gray-200 p-4 flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-800">
+                            {cardDataDuo.title}
+                        </h2>
+                        <p className="text-xl font-bold text-gray-800">
+                            ${cardDataDuo.price}
+                        </p>
+                    </div>
+                    <div className="p-6">
+                        <p className="text-gray-600 mb-4">{cardDataDuo.description}</p>
+                        <ul className="mb-4">
+                            {cardDataDuo.features.map((feature, index) => (
+                                <li key={index.id} className="flex items-center mb-2">
+                                    <svg
+                                        className="w-6 h-6 text-gray-600 mr-2"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M5 13l4 4L19 7"
+                                        ></path>
+                                    </svg>
+                                    <span className="text-gray-700">{feature}</span>
+                                </li>
+                            ))}
                         </ul>
-                        <div className="card-actions mt-4">
-                            <button className="btn w-full text-lg text-[#FFF] bg-blue-500 hover:bg-blue-700 border-none btn-sm">Subscribe Now</button>
+                        <div className="text-center">
+                            <button
+                                onClick={hanldePrice2}
+                                className="text-xl font-bold btn bg-white rounded-lg text-blue-600"
+                            >
+                                get premium due
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="card w-96 bg-gray-200 text-gray-800">
-                <div className="card-body">
-                    <div className="border-2 border-blue-500 rounded-xl p-5">
-                        <p className="bg-blue-300 px-2 rounded-lg w-fit font-medium">Free For 1 Month</p>
-                        <div className="card-title flex justify-between my-3 mt-5">
-                            <h2>Premium<br />Individual</h2>
-                            <h2>Free<br /><span className="text-sm">FOR 1 MONTH</span></h2>
-                        </div>
-                        <ul className="list-disc ml-4 text-gray-700 text-lg font-medium">
-                            <li>1 Premium Account</li>
-                            <li>Cancel Anytime</li>
-                            <li>15 hours/month of listening time from our audiobooks subscriber catalog</li>
+                <div className="max-w-full rounded overflow-hidden shadow-lg m-4 border-blue-500 border">
+                    <div className="bg-gray-200 p-4 flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-gray-800">
+                            {cardDataFamily.title}
+                        </h2>
+                        <p className="text-xl font-bold text-gray-800">
+                            ${cardDataFamily.price}
+                        </p>
+                    </div>
+                    <div className="p-6">
+                        <p className="text-gray-600 mb-4">{cardDataFamily.description}</p>
+                        <ul className="mb-4">
+                            {cardDataFamily.features.map((feature, index) => (
+                                <li key={index.id} className="flex items-center mb-2">
+                                    <svg
+                                        className="w-6 h-6 text-gray-600 mr-2"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M5 13l4 4L19 7"
+                                        ></path>
+                                    </svg>
+                                    <span className="text-gray-700">{feature}</span>
+                                </li>
+                            ))}
                         </ul>
-                        <div className="card-actions mt-4">
-                            <button className="btn w-full text-lg text-[#FFF] bg-blue-500 hover:bg-blue-700 border-none btn-sm">Subscribe Now</button>
+                        <div className="text-center">
+                            <button
+                                onClick={hanldePrice3}
+                                className="text-xl font-bold btn bg-white rounded-lg text-blue-600"
+                            >
+                                get premium Family
+                            </button>
                         </div>
                     </div>
                 </div>

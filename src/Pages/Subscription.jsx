@@ -1,62 +1,71 @@
+/* eslint-disable no-unused-vars */
 import { useState } from "react";
-import { axiosCommon } from "../Hooks/useAxiosCommon";
-import { useMutation } from "@tanstack/react-query";
-import toast from "react-hot-toast";
-import Payment from "./Payment";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Subscription = () => {
-    const [period, setPeriod] = useState('');
-    const [price, setPrice] = useState(0);
+    const { price } = useParams();
+    console.log(price);
+    const navigate = useNavigate();
+    const [totalPrice, setTotalPrice] = useState();
 
-    const handlePeriodChange = (e) => {
-        const selectedPeriod = e.target.value;
-        setPeriod(selectedPeriod);
-        switch (selectedPeriod) {
-            case '1 minute':
-                setPrice(0.10);
-                break;
-            case '5 days':
-                setPrice(5.00);
-                break;
-            case '10 days':
-                setPrice(9.00);
-                break;
-            default:
-                setPrice(0);
-        }
+    const priceNumber = parseFloat(price);
+
+    //convert it in days
+    const periodValues = {
+        1: 10 / (24 * 60),
+        5: 50,
+        10: 100,
     };
-    const { mutateAsync } = useMutation({
-        mutationFn: async subscribeInfo => {
-            const { data } = await axiosCommon.post('/subscribe', subscribeInfo)
-            return data;
-        }
-    })
 
-    const handleSubscribe = async () => {
-        try {
-            const subscribeInfo = {
-                price,
-                period
-            }
-            await mutateAsync(subscribeInfo)
-        } catch (err) {
-            toast.error(err.message)
-        }
+    // Handle the subscribe button click
+    const handleSubscribe = event => {
+        event.preventDefault();
+
+        // Get the selected period from the form
+        const form = event.target;
+        const selectedPeriod = form.period.value;
+
+        // Get the period value
+        const periodValue = periodValues[selectedPeriod];
+
+        // Calculate the total price
+        const totalPrice = periodValue ? (priceNumber * periodValue).toFixed(2) : 0;
+        setTotalPrice(totalPrice);
+
+        navigate(`/payment/${ totalPrice }`);
     };
     return (
-        <div>
-            <div className="subscription text-center bg-gray-200 px-6 py-10 rounded-xl shadow-2xl w-2/4 mx-auto">
-                <h2 className="text-2xl text-blue-700 font-bold">Select Subscription Period</h2>
-                <Payment period={period} price={price} />
-                <select className="mt-6 my-8 w-40 px-4 py-2" value={period} onChange={handlePeriodChange}>
-                    <option value="" disabled>Select a period</option>
-                    <option value='1 minute'>1 Minute - $0.10</option>
-                    <option value='5 days'>5 Days - $5.00</option>
-                    <option value='10 days'>10 Days - $9.00</option>
-                </select> <br />
-                <button to={'/payment'} disabled={price < 0.10} className="disabled:cursor-not-allowed btn bg-blue-500 hover:bg-blue-600 text-[#fff] font-semibold btn-sm" onClick={handleSubscribe}>Subscribe Now ${price.toFixed(2)}</button>
+        <div className="subscription-banner pt-20 min-h-[calc(100vh-180px)]">
+            <div className="my-10 text-center">
+                <h2 className="  text-2xl lg:text-3xl text-blue-500">
+                    🎉 Subscribe Now for Exclusive Benefits! 🎉
+                </h2>
+                <p>Unlock Premium Content and Features Today!</p>
             </div>
 
+            <form onSubmit={handleSubscribe} className="">
+                <div className="">
+                    <select
+                        className="lg:ml-96 ml-20 bg text-center w-1/2 lg:w-1/3 p-2 rounded bg-blue-100"
+                        name="period"
+                        required
+                    >
+                        <option value="" disabled>
+                            Select period
+                        </option>
+                        <option value="1">1 minute</option>
+                        <option value="5">5 days</option>
+                        <option value="10">10 days</option>
+                    </select>
+
+                    <button
+                        type="submit"
+                        className="btn bg-blue-500 text-[#FFF] hover:bg-blue-600 lg:ml-96 ml-20 bg text-center w-1/2 lg:w-1/3 mt-5"
+                    >
+                        Subscribe
+                    </button>
+                </div>
+            </form>
         </div>
     );
 };

@@ -1,117 +1,145 @@
-import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
-import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+/* eslint-disable react-hooks/exhaustive-deps */
+import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { ImSpinner9 } from "react-icons/im";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import useAxiosCommon from "../Hooks/useAxiosCommon";
+import useAuth from "../Hooks/useAuth";
 
-import useAxiosSecure from '../Hooks/useAxiosSecure';
-import useAuth from '../Hooks/useAuth';
+const CheckoutForm = ({ totalPrice }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const axiosPublic = useAxiosCommon();
+  const { user } = useAuth();
 
-const CheckoutForm = ({price,period}) => {
-    const stripe = useStripe();
-    const elements = useElements();
-    const [error, setError] = useState('')
-    const [clientSecret, setClientSecret] = useState('')
-    const [transactionId,setTransactionId] = useState('')
-    const axiosSecure = useAxiosSecure()
-    const { user } = useAuth()
-    const totalPrice = price
-    console.log(period);
-    useEffect(() => {
-        if(totalPrice>0){
-            axiosSecure.post('/create-payment-intent', { price: totalPrice })
-            .then(res => {
-                console.log(res.data.clientSecret);
-                setClientSecret(res.data.clientSecret)
-            })
-        }
-    }, [axiosSecure, totalPrice])
+  const [clientSecret, setClientSecret] = useState("");
+  const [cardError, setCardError] = useState("");
+  const [processing, setProcessing] = useState(false);
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        if (!stripe || !elements) {
-            return;
-        }
-        const card = elements.getElement(CardElement);
-        if (card == null) {
-            return;
-        }
-        const { error, paymentMethod } = await stripe.createPaymentMethod({
-            type: 'card',
-            card,
-        });
+  useEffect(() => {
+    //  fetch client secret
+    if (totalPrice && totalPrice > 1) {
+      getClientSecret({ price: totalPrice });
+    }
+    //
+  }, [totalPrice]);
+  const getClientSecret = async price => {
+    const { data } = await axiosPublic.post('/create-payment-intent', price);
+    // console.log("client secret form server----------> ", data);
+    setClientSecret(data.clientSecret);
+  };
 
-        if (error) {
-            console.log('[error]', error);
-            setError(error.message)
-        } else {
-            console.log('[PaymentMethod]', paymentMethod);
-            setError('')
-        }
-        //confirm-payment
-        const { paymentIntent, error: confirmError } = await stripe.
-        confirmCardPayment(clientSecret, {
-            payment_method: {
-                card: card,
-                billing_details: {
-                    email: user?.email || 'anonymous',
-                    name: user?.displayName || 'anonymous'
-                }
-            }
-        })
-        if (confirmError) {
-            console.log('confirmError');
-        } 
-        else {
-            console.log('payment intent', paymentIntent);
-            if(paymentIntent.status === 'succeeded'){
-                console.log('transaction id', paymentIntent.id);
-                setTransactionId(paymentIntent.id)
-                
-                //now save the payment info in the database
-                const payment = {
-                    email: user?.email,
-                    price: totalPrice,
-                    transactionId: paymentIntent.id,
-                    date: new Date(),
-                    period
-                }
-                const res = await axiosSecure.post('/payments',payment)
-                console.log(res.data);
-                if(res.data?.paymentResult?.insertedId){
-                    toast.success('Payment Successful')
-                }
-                else{
-                    toast.error('Not Successful')
-                }
-            }
-        }
-    };
-    return (
-        <div className='w-2/4 mx-auto bg-gray-200'>
-            <form onSubmit={handleSubmit}>
-                <CardElement
-                    options={{
-                        style: {
-                            base: {
-                                fontSize: '16px',
-                                color: '#424770',
-                                '::placeholder': {
-                                    color: '#aab7c4',
-                                },
-                            },
-                            invalid: {
-                                color: '#9e2146',
-                            },
-                        },
-                    }}
-                />
-                <button className='btn btn-primary' type="submit" disabled={!stripe || !clientSecret}>
-                    Pay ${price}
-                </button>
-                <p className='text-red-600'>{error}</p>
-                {transactionId && <p className='text-green-600'>Your Transaction Id: {transactionId}</p>}
-            </form>
-        </div>
-    );
+  const handleSubmit = async event => {
+    // Block native form submission.
+    event.preventDefault();
+    setProcessing(true);
+
+    if (!stripe || !elements) {
+      // Stripe.js has not loaded yet. Make sure to disable
+      // form submission until Stripe.js has loaded.
+      return;
+    }
+
+    // Get a reference to a mounted CardElement. Elements knows how
+    // to find your CardElement because there can only ever be one of
+    // each type of element.
+    const card = elements.getElement(CardElement);
+
+    if (card == null) {
+      return;
+    }
+
+    // Use your card Element with other Stripe.js APIs
+    const { error, paymentMethod } = await stripe.createPaymentMethod({
+      type: "card",
+      card,
+    });
+
+    if (error) {
+      console.log("[error]", error);
+      setCardError(error.message);
+      setProcessing(false);
+      return;
+    } else {
+      console.log("[PaymentMethod]", paymentMethod);
+      setCardError("");
+    }
+    //  confirm payment
+    const { error: confirmError, paymentIntent } =
+      await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: card,
+          billing_details: {
+            email: user?.email,
+            name: user?.displayName,
+          },
+        },
+      });
+    if (confirmError) {
+      console.log(confirmError);
+      setCardError(confirmError.message);
+      setProcessing(false);
+      return;
+    }
+    if (paymentIntent.status === "succeeded") {
+      console.log("payment Intent ", paymentIntent);
+      const paymentInfo = {
+        name: user?.name,
+        email: user?.email,
+        transactionId: paymentIntent.id,
+        date: new Date(),
+      };
+      console.log(paymentInfo);
+      toast.success(`${user?.email} payment successfully` )
+
+      try {
+        axiosPublic.post("/payments", paymentInfo);
+      
+      } catch (error) {
+        console.log(error);
+      }
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <>
+      <form onSubmit={handleSubmit} className=" lg:ml-96">
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: "16px",
+                color: "#424770",
+                "::placeholder": {
+                  color: "#aab7c4",
+                },
+              },
+              invalid: {
+                color: "#9e2146",
+              },
+            },
+          }}
+        />
+        <button
+          className="btn bg-blue-600 px-10"
+          type="submit"
+          disabled={!stripe || !clientSecret || processing}
+        >
+          {processing ? (
+            <ImSpinner9
+              size={24}
+              className="animate-spin m-auto text-green-400"
+            ></ImSpinner9>
+          ) : (
+            `Pay $(${totalPrice})`
+          )}
+        </button>
+        {}
+        {cardError && <p className="text-red-600 ml-10">{cardError}</p>}
+      </form>
+    </>
+  );
 };
 
 export default CheckoutForm;
