@@ -1,123 +1,184 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form"
-import Swal from 'sweetalert2'
-import useAuth from "../Hooks/useAuth";
-import useAxiosCommon from "../Hooks/useAxiosCommon";
-import SocialLogin from "../Components/SocialLogin";
-import toast from "react-hot-toast";
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { IoEye, IoEyeOff } from "react-icons/io5";
+import { useState } from 'react'
+import toast from 'react-hot-toast';
+import { imageUpload } from '../Utils/imageUpload';
+import useAuth from '../Hooks/useAuth';
+import { axiosCommon } from '../Hooks/useAxiosCommon';
+import SocialLogin from '../Components/SocialLogin';
 
 const SignUp = () => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
-    const { createUser, updateUserProfile } = useAuth()
-    const navigate = useNavigate();
-    const location = useLocation()
-    const from = location.state?.from?.pathname || "/";
-    const axiosCommon = useAxiosCommon()
-
-
-    const onSubmit = data => {
-        createUser(data.email, data.password)
-            .then(result => {
-                const loggedUser = result.user;
-                console.log(loggedUser);
-                updateUserProfile(data.name, data.photoURL)
-                    .then(() => {
-                        console.log('user profile info updated')
-                        const userInfo = {
-                            name: data.name,
-                            email: data.email,
-                            image: data.photoURL,
-                            premiumTaken: null,
-                            lastSignInTime: loggedUser?.metadata?.lastSignInTime,
-                            status: 'Normal User'
-                        }
-                        axiosCommon.post('/users', userInfo)
-                            .then(res => {
-                                if (res.data.insertedId) {
-                                    reset();
-                                    Swal.fire({
-                                        position: 'top-end',
-                                        icon: 'success',
-                                        title: 'User created successfully.',
-                                        showConfirmButton: false,
-                                        timer: 1500
-                                    });
-                                    navigate(from);
-                                }
-                            })
-                    })
-                    .catch(error => {
-                        if(error.message){
-                            toast.error('Already Registered',error)
-                        }
-                    })
-            })
-    };
-
-    return (
-        <div className="flex flex-row-reverse mt-20 items-center gap-x-16 p-16 shadow-slate-700 bg-[url('https://i.postimg.cc/zBTCjD9x/authentication.png')]">
-            <div className="flex-1">
-                <img src='https://i.postimg.cc/3rCj0RjR/authentication1.png' />
-            </div>
-            <div className="flex-1">
-                <h1 className="text-3xl font-semibold text-center">Sign Up</h1>
-                <form onSubmit={handleSubmit(onSubmit)} className="card-body">
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="label-text text-lg font-semibold">Full Name</span>
-                        </label>
-                        <input name="name"
-                            {...register("name", { required: true })}
-                            type="text" placeholder="Your Name" className="input input-bordered" />
-                        {errors.name && <span className="text-red-600">Name is required</span>}
-                    </div>
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="label-text text-lg font-semibold">Email</span>
-                        </label>
-                        <input name="email"
-                            {...register("email", { required: true })}
-                            type="email" placeholder="Your Email" className="input input-bordered" />
-                        {errors.email && <span className="text-red-600">Email is required</span>}
-                    </div>
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="label-text text-lg font-semibold">PhotoURL</span>
-                        </label>
-                        <input name="photo"
-                            {...register("photoURL", { required: true })}
-                            type="text" placeholder="Your Password" className="input input-bordered" />
-                        {errors.photoURL && <span className="text-red-600">PhotoURL is required</span>}
-                    </div>
-                    <div className="form-control">
-                        <label className="label">
-                            <span className="label-text text-lg font-semibold">Password</span>
-                        </label>
-                        <input name="password"
-                            {...register("password", {
-                                required: true,
-                                minLength: 6,
-                                maxLength: 20,
-                                pattern: /(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9])(?=.*[a-z])/
-                            })}
-                            type="password" placeholder="Your Password" className="input input-bordered" />
-                        {errors.password?.type === 'required' && <p className="text-red-600">Password is required</p>}
-                        {errors.password?.type === 'minLength' && <p className="text-red-600">Password must be 6 characters</p>}
-                        {errors.password?.type === 'maxLength' && <p className="text-red-600">Password must be less than 20 characters</p>}
-                        {errors.password?.type === 'pattern' && <p className="text-red-600">Password must have one Uppercase one lower case, one number and one special character.</p>}
-                    </div>
-                    <div className="form-control mt-6">
-                        <button className="btn text-[#FFF] font-semibold text-xl bg-[#dbb984]">Sign Up</button>
-                    </div>
-                </form>
-                <div className="text-center">
-                    <p className="text-lg text-[#976e2b]">Already Account? <Link to={'/login'} className="font-semibold">Please Login</Link></p>
-                    <p className="font-semibold my-4">Or Sign Up With</p>
-                    <SocialLogin />
-                </div>
-            </div>
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = location?.state || '/'
+  const [showPassword, setShowPassword] = useState(false)
+  const { createUser, updateUserProfile } = useAuth()
+  const handleSignUp = async e => {
+    e.preventDefault()
+    const form = e.target;
+    const name = form.name.value;
+    const email = form.email.value;
+    const password = form.password.value;
+    const image = form.image.files[0]
+    if (password.length < 6) {
+      return toast.error('Password should be Atleast 6 character or longer')
+    }
+    else if (!/[A-Z]/.test(password)) {
+      return toast.error('Your Password Should have Atleast one UPPERCASE')
+    }
+    else if (!/[a-z]/.test(password)) {
+      return toast.error('Your Password Should have Atleast one lowercase')
+    }
+    else if (!/[!@#$&*]/.test(password)) {
+      return toast.error('Your Password Should have Atleast one Special Character')
+    }
+    try {
+      //1. upload image & get image url
+      const image_url =await imageUpload(image)
+      //2. User Registration
+      await createUser(email, password)
+      //3. Save username & photo in firebase
+      await updateUserProfile(name, image_url)
+        const userInfo = {
+            name,
+            email,
+            image_url
+        }
+        axiosCommon.post('/users', userInfo)
+        .then(res=>{
+            if(res.data.insertedId){
+                navigate(from)
+                toast.success('Sign Up Successful')
+            }
+        })
+      
+    }
+    catch (err) {
+      if (err.message) {
+        toast.error('Already Registered')
+      }
+    }
+  }
+  // const handleGoogleSignUp = async () => {
+  //   try {
+  //     await signInWithGoogle()
+      
+  //     navigate(from)
+  //     toast.success('Sign Up Successful')
+  //   }
+  //   catch (err) {
+  //     if (err.message) {
+  //       toast.error('Already Registered')
+  //     }
+  //   }
+  // }
+  return (
+    <div className='flex justify-center items-center min-h-screen'>
+      <div className='flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900'>
+        <div className='mb-8 text-center'>
+          <h1 className='my-3 text-4xl font-bold'>Sign Up</h1>
+          <p className='text-sm text-gray-400'>Welcome to StayVista</p>
         </div>
-    );
-};
+        <form
+          onSubmit={handleSignUp}
+          noValidate=''
+          action=''
+          className='space-y-6 ng-untouched ng-pristine ng-valid'
+        >
+          <div className='space-y-4'>
+            <div>
+              <label htmlFor='email' className='block mb-2 text-sm'>
+                Name
+              </label>
+              <input
+                type='text'
+                name='name'
+                id='name'
+                placeholder='Enter Your Name Here'
+                className='w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-blue-500 bg-gray-200 text-gray-900'
+                data-temp-mail-org='0'
+              />
+            </div>
+            <div>
+              <label htmlFor='image' className='block mb-2 text-sm'>
+                Select Image:
+              </label>
+              <input
+                required
+                type='file'
+                id='image'
+                name='image'
+                accept='image/*'
+              />
+            </div>
+            <div>
+              <label htmlFor='email' className='block mb-2 text-sm'>
+                Email address
+              </label>
+              <input
+                type='email'
+                name='email'
+                id='email'
+                required
+                placeholder='Enter Your Email Here'
+                className='w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-blue-500 bg-gray-200 text-gray-900'
+                data-temp-mail-org='0'
+              />
+            </div>
+            <div>
+              <div className='flex justify-between'>
+                <label htmlFor='password' className='text-sm mb-2'>
+                  Password
+                </label>
+              </div>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name='password'
+                autoComplete='new-password'
+                id='password'
+                required
+                placeholder='*******'
+                className='w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-blue-500 bg-gray-200 text-gray-900'
+              />
+              <span className="absolute mt-3 -ml-8 text-xl" onClick={() => setShowPassword(!showPassword)}>
+                {
+                  showPassword ? <IoEyeOff></IoEyeOff> : <IoEye></IoEye>
+                }
+              </span>
+            </div>
+          </div>
 
-export default SignUp;
+          <div>
+            <button
+              type='submit'
+              className='disabled:cursor-not-allowed bg-blue-500 w-full rounded-md py-3 text-white'
+            >
+              Continue
+            </button>
+          </div>
+        </form>
+        <div className='flex items-center pt-4 space-x-1'>
+          <div className='flex-1 h-px sm:w-16 dark:bg-gray-700'></div>
+          <p className='px-3 text-sm dark:text-gray-400'>
+            Signup with social accounts
+          </p>
+          <div className='flex-1 h-px sm:w-16 dark:bg-gray-700'></div>
+        </div>
+        <SocialLogin/>
+        <p className='px-6 text-sm text-center text-gray-400'>
+          Already have an account?{' '}
+          <Link
+            to='/login'
+            className='hover:underline hover:text-blue-500 text-gray-600'
+          >
+            Login
+          </Link>
+          .
+        </p>
+      </div>
+    </div>
+  )
+}
+
+export default SignUp
+
